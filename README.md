@@ -42,7 +42,8 @@ scram b -j16
 ## Location of data files
 
 #### Raw data files
-* The RAW files can be found in **`/afs/cern.ch/work/b/barneyd/public/data_May_2017/disk2_2TB/eudaq_data`**.
+* The RAW files in eudaq format (1 bit for each SkiROC in 32 bits (4*8 - number of chip times number of readout boards)) can be found in **`/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/raw`**.
+* The RAW files in SkiROC format unpacked from eudaq format - 16 * 1924 bits. 1924 = (64 * (13*2) + 4) + 4) / 64 channles (only 32 are used, 13 SCA channels, 2 HG/LG, 4 TOA and TOT fast and slow, 4 chipID blah blah) can be found in **`/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/unpacked`**.
 
 #### Electronics map
 * The EMAP for this run **`map_CERN_Hexaboard_OneLayers_May2017.txt`** can be found in CondObjects/data
