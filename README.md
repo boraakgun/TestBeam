@@ -23,15 +23,21 @@
 * CMSSW Version 8.0.1
 
 ```bash
-scram project ${RELEASE}
-cd ${RELEASE}/src/
+scram project CMSSW_8_0_1
+cd CMSSW_8_0_1/src/
 cmsenv
-git cms-init
 git clone git@github.com:CMS-HGCAL/TestBeam.git HGCal/
-git checkout CERN_TestBeam_2017
+cd HGCal/
+git checkout CERN_TestBeam_2018_Ipbus
 git pull
 scram b -j16
 ```
+
+## Some Notes for self :))
+## After having a seperate fork, this is done to point to your fork 
+git remote set-url origin https://github.com/boraakgun/TestBeam.git
+git remote show origin
+
 
 ## Location of data files
 
