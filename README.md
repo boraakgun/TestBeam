@@ -34,9 +34,9 @@ scram b -j16
 ```
 
 ## Some Notes for self :))
-## After having a seperate fork, this is done to point to your fork 
-git remote set-url origin https://github.com/boraakgun/TestBeam.git
-git remote show origin
+#### After having a seperate fork, this is done to point to your fork 
+* git remote set-url origin https://github.com/boraakgun/TestBeam.git
+* git remote show origin
 
 
 ## Location of data files
