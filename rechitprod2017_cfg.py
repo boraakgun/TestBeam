@@ -6,25 +6,26 @@ import os,sys
 options = VarParsing.VarParsing('standard') # avoid the options: maxEvents, files, secondaryFiles, output, secondaryOutput because they are already defined in 'standard'
 #Change the data folder appropriately to where you wish to access the files from:
 options.register('dataFolder',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/HGCalTBRawHit',
+                 #'/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/HGCalTBRawHit',
+                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RawHit',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing HGCalTBRawHit input')
 
 options.register('runNumber',
-                 24,
+                 179,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  'Input run to process')
 
 options.register('edmOutputFolder',
-                 './',
+                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RecHit/',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'Output folder where edm output are stored')
 
 options.register('rechitOutputFolder',
-                 './',
+                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RecHit',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'Output folder where analysis output are stored')
