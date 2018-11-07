@@ -31,13 +31,13 @@ options.register('rechitOutputFolder',
                  'Output folder where analysis output are stored')
 
 options.register('electronicMap',
-                 'HGCal/CondObjects/data/map_CERN_Hexaboard_June_28Sensors_28EELayers_V1.txt',
+                 'HGCal/CondObjects/data/emap_full_October2018_setup3_v1_promptReco.txt',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to the electronic map')
 
 options.register('hgcalLayout',
-                 'HGCal/CondObjects/data/layerGeom_june2018_h2_28layers.txt',
+                 'HGCal/CondObjects/data/layer_geom_full_October2018_setup3_v1_promptReco.txt',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to hgcal layout file')
