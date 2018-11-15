@@ -6,49 +6,43 @@ import os,sys
 options = VarParsing.VarParsing('standard') # avoid the options: maxEvents, files, secondaryFiles, output, secondaryOutput because they are already defined in 'standard'
 #Change the data folder appropriately to where you wish to access the files from:
 options.register('dataFolder',
-                 #'/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/HGCalTBSkiroc2CMS',
-                 #'/afs/cern.ch/user/b/bora/CMSSW_8_0_1/src/HGCal/Skiroc2CMS',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/Skiroc2CMS',
+                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/HGCalTBSkiroc2CMS',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing raw input')
 
 options.register('runNumber',
-                 1064,
+                 24,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  'Input run to process')
 
 options.register('pedestalFolder',
-                 #'/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/pedestals',
-                 #'/afs/cern.ch/user/b/bora/CMSSW_8_0_1/src/HGCal/Skiroc2CMS',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/Skiroc2CMS',
+                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/pedestals',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing raw input')
 
 options.register('edmOutputFolder',
-                 #'/afs/cern.ch/user/b/bora/CMSSW_8_0_1/src/HGCal/RawHit',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RawHit/',
+                 './',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 'Output folder where edm output are stored')
+                 'Output folder where analysis output are stored')
 
 options.register('rawhitOutputFolder',
-                 #'/afs/cern.ch/user/b/bora/CMSSW_8_0_1/src/HGCal/RawHit',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RawHit',
+                 './',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'Output folder where analysis output are stored')
 
 options.register('electronicMap',
-                 "HGCal/CondObjects/data/emap_full_October2018_setup2_v0_promptReco.txt",
+                 "HGCal/CondObjects/data/map_CERN_Hexaboard_June_28Sensors_28EELayers_V0.txt",
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to the electronic map')
 
 options.register('hgcalLayout',
-                 'HGCal/CondObjects/data/layer_geom_full_October2018_setup2_v0_promptReco.txt',
+                 'HGCal/CondObjects/data/layerGeom_june2018_h2_28layers.txt',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to hgcal layout file')
@@ -120,6 +114,6 @@ process.pulseshapeplotter = cms.EDAnalyzer("PulseShapePlotter",
 )
 
 
-process.p = cms.Path( process.rawhitproducer*process.rawhitplotter )
+process.p = cms.Path( process.rawhitproducer*process.pulseshapeplotter )
 
 process.end = cms.EndPath(process.output)

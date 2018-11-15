@@ -6,59 +6,51 @@ import os,sys
 options = VarParsing.VarParsing('standard') # avoid the options: maxEvents, files, secondaryFiles, output, secondaryOutput because they are already defined in 'standard'
 #Change the data folder appropriately to where you wish to access the files from:
 options.register('dataFolder',
-                 #'/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_june/HGCalTBRawHit',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RawHit',
+                 './',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 'folder containing HGCalTBRawHit input')
+                 'folder containing raw input')
 
 options.register('runNumber',
-                 179,
+                 106,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  'Input run to process')
 
-options.register('edmOutputFolder',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RecHit/',
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 'Output folder where edm output are stored')
-
-options.register('rechitOutputFolder',
-                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RecHit',
+options.register('outputFolder',
+                 '/afs/cern.ch/work/a/asteen/public/data/july2017/',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'Output folder where analysis output are stored')
 
 options.register('electronicMap',
-                 'HGCal/CondObjects/data/emap_full_October2018_setup3_v1_promptReco.txt',
+                 'HGCal/CondObjects/data/map_CERN_Hexaboard_September_17Sensors_7EELayers_10FHLayers_V1.txt',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to the electronic map')
+# Available options: 
+# "HGCal/CondObjects/data/map_CERN_Hexaboard_July_6Layers.txt"
+# "HGCal/CondObjects/data/map_CERN_Hexaboard_September_17Sensors_7EELayers_10FHLayers_V1.txt" # end of september
+# "HGCal/CondObjects/data/map_CERN_Hexaboard_October_17Sensors_5EELayers_6FHLayers_V1.txt" # october 18-22, 1st conf
+# "HGCal/CondObjects/data/map_CERN_Hexaboard_October_20Sensors_5EELayers_7FHLayers_V1.txt" # october 18-22, 2nd conf
 
 options.register('hgcalLayout',
-                 'HGCal/CondObjects/data/layer_geom_full_October2018_setup3_v1_promptReco.txt',
+                 'HGCal/CondObjects/data/layerGeom_oct2017_h2_17layers.txt',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'path to hgcal layout file')
-
-options.register('adcCalibrationsFile',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/calibration/ADCCalibration_28modules_20-09-2018.root',
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 'Root file containing ADC calibration parmaters')
+# Available options: 
+# "HGCal/CondObjects/data/layerGeom_oct2017_h2_17layers.txt"
+# "HGCal/CondObjects/data/layerGeom_oct2017_h6_17layers.txt"
+# "HGCal/CondObjects/data/layerGeom_oct2017_h6_20layers.txt"
 
 options.maxEvents = -1
 options.output = "cmsswEvents_RecHit.root"
 
 options.parseArguments()
+print options
 if not os.path.isdir(options.dataFolder):
     sys.exit("Error: Data folder not found or inaccessible!")
-
-options.output = options.edmOutputFolder + "run%06d.root"%(options.runNumber)
-
-
-print options
 
 ################################
 process = cms.Process("rechitprod")
@@ -69,11 +61,10 @@ process.maxEvents = cms.untracked.PSet(
 ####################################
 
 process.source = cms.Source("PoolSource",
-                            fileNames=cms.untracked.vstring("file:%s/run%06d.root"%(options.dataFolder,options.runNumber)),
-                            skipEvents=cms.untracked.uint32(0)
+                            fileNames=cms.untracked.vstring("file:%s/cmsswEvents_Run%d_RawHit.root"%(options.dataFolder,options.runNumber))
 )
 
-filename = options.rechitOutputFolder+"/HexaOutput_"+str(options.runNumber)+".root"
+filename = options.outputFolder+"/HexaOutput_"+str(options.runNumber)+".root"
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(filename)
 )
@@ -88,19 +79,21 @@ process.rechitproducer = cms.EDProducer("HGCalTBRecHitProducer",
                                         InputCollection = cms.InputTag('rawhitproducer','HGCALTBRAWHITS'),
                                         ElectronicsMap = cms.untracked.string(options.electronicMap),
                                         DetectorLayout=cms.untracked.string(options.hgcalLayout),
-                                        ADCCalibrationsFile=cms.untracked.string("file:%s"%(options.adcCalibrationsFile)),
-                                        ExpectedMaxTimeSample=cms.untracked.int32(3),
-                                        MaxADCCut=cms.untracked.double(20),
+                                        TimeSample3ADCCut = cms.untracked.double(15.)
 )
 
 process.rechitplotter = cms.EDAnalyzer("RecHitPlotter",
                                        InputCollection=cms.InputTag("rechitproducer","HGCALTBRECHITS"),
-                                       ElectronicsMap = cms.untracked.string(options.electronicMap),
+                                       ElectronicMap=cms.untracked.string(options.electronicMap),
                                        DetectorLayout=cms.untracked.string(options.hgcalLayout),
                                        SensorSize=cms.untracked.int32(128),
-                                       EventPlotter=cms.untracked.bool(False),
+                                       EventPlotter=cms.untracked.bool(True),
                                        MipThreshold=cms.untracked.double(5.0),
                                        NoiseThreshold=cms.untracked.double(0.5)
+)
+process.pulseshapeplotter = cms.EDAnalyzer("PulseShapePlotter",
+                                           InputCollection=cms.InputTag("rawhitproducer","HGCALTBRAWHITS"),
+                                           ElectronicMap=cms.untracked.string(options.electronicMap)
 )
 
 process.showeranalyzer = cms.EDAnalyzer("ShowerAnalyzer",
@@ -110,7 +103,6 @@ process.showeranalyzer = cms.EDAnalyzer("ShowerAnalyzer",
                                        NoiseThreshold=cms.untracked.double(0.5)
 )
 
-process.p = cms.Path( process.rechitproducer*process.rechitplotter )
-#process.p = cms.Path( process.rechitproducer )
+process.p = cms.Path( process.rechitproducer*process.showeranalyzer )
 
 process.end = cms.EndPath(process.output)
