@@ -6,19 +6,20 @@ import os,sys
 options = VarParsing.VarParsing('standard') # avoid the options: maxEvents, files, secondaryFiles, output, secondaryOutput because they are already defined in 'standard'
 #Change the data folder appropriately to where you wish to access the files from:
 options.register('dataFolder',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/rawhits/v1',
+                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/skiroc2cms/v1',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing ski2cms collection input')
 
-options.register('pedestalFolder',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/pedestals/v1',
+options.register('pedestalOutputFolder',
+                 #'/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/pedestals/v1',
+                 './',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing pedestal files')
 
 options.register('runNumber',
-                 808,
+                 984,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  'Input run to process')
@@ -41,7 +42,7 @@ options.register('hgcalLayout',
                  VarParsing.VarParsing.varType.string,
                  'path to hgcal layout file')
 
-options.maxEvents = -1
+options.maxEvents = 2500
 options.output = "cmsswEvents.root"
 
 options.parseArguments()
@@ -50,9 +51,9 @@ if not os.path.isdir(options.dataFolder):
     sys.exit("Error: Data folder not found or inaccessible!")
 
 
-pedestalHighGain=options.pedestalFolder+"/pedestalsHG_"+str(options.runNumber)+".txt"
-pedestalLowGain=options.pedestalFolder+"/pedestalsLG_"+str(options.runNumber)+".txt"
-noisyChannels="noise.txt"
+pedestalHighGain=options.pedestalOutputFolder+"/pedestalsHG_"+str(options.runNumber)+".txt"
+pedestalLowGain=options.pedestalOutputFolder+"/pedestalsLG_"+str(options.runNumber)+".txt"
+noisyChannels=options.pedestalOutputFolder+"/noisyChannels_"+str(options.runNumber)+".txt"
 
 ################################
 process = cms.Process("rawhitAnalysis")
@@ -63,7 +64,7 @@ process.maxEvents = cms.untracked.PSet(
 ####################################
 
 process.source = cms.Source("PoolSource",
-                            fileNames=cms.untracked.vstring("file:%s/RAWHITS_%d.root"%(options.dataFolder,options.runNumber))
+                            fileNames=cms.untracked.vstring("file:%s/Skiroc2CMS_%d.root"%(options.dataFolder,options.runNumber))
 )
 
 filename = options.outputFolder+"/HexaOutput_"+str(options.runNumber)+".root"
@@ -77,12 +78,12 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.pedestalplotter = cms.EDAnalyzer("PedestalPlotter",
                                          SensorSize=cms.untracked.int32(128),
-                                         WritePedestalFile=cms.untracked.bool(False),
+                                         WritePedestalFile=cms.untracked.bool(True),
                                          InputCollection=cms.InputTag("source","skiroc2cmsdata"),
                                          ElectronicMap=cms.untracked.string(options.electronicMap),
                                          HighGainPedestalFileName=cms.untracked.string(pedestalHighGain),
                                          LowGainPedestalFileName=cms.untracked.string(pedestalLowGain),
-                                         WriteNoisyChannelsFile=cms.untracked.bool(False),
+                                         WriteNoisyChannelsFile=cms.untracked.bool(True),
                                          NoisyChannelsFileName=cms.untracked.string(noisyChannels),
                                          WriteTreeOutput=cms.untracked.bool(True)
 )
@@ -103,7 +104,7 @@ process.correlationplotter = cms.EDAnalyzer("CorrelationPlotter",
                                          LowGainPedestalFileName=cms.untracked.string(pedestalLowGain),
 )
 
-process.p = cms.Path( process.rawhitplotter )
+process.p = cms.Path( process.pedestalplotter )
 
 process.end = cms.EndPath(process.output)
 

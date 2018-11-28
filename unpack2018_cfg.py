@@ -66,7 +66,7 @@ options.register('setupConfiguration',
                  'setupConfiguration (1: July - 4: 20 Layers in October in H6A".'
                 )
 
-options.maxEvents = -1
+options.maxEvents = 100
 options.output = "cmsswEvents.root"
 
 options.parseArguments()

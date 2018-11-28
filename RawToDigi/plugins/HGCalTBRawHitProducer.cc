@@ -5,7 +5,7 @@
 HGCalTBRawHitProducer::HGCalTBRawHitProducer(const edm::ParameterSet& cfg) : 
   m_electronicMap(cfg.getUntrackedParameter<std::string>("ElectronicMap","HGCal/CondObjects/data/map_CERN_Hexaboard_OneLayers_May2017.txt")),
   m_outputCollectionName(cfg.getParameter<std::string>("OutputCollectionName")),
-  m_globalTimestampCollectionName(cfg.getParameter<std::string>("GlobalTimestampCollectionName")),
+  //m_globalTimestampCollectionName(cfg.getParameter<std::string>("GlobalTimestampCollectionName")),
   m_subtractPedestal(cfg.getUntrackedParameter<bool>("SubtractPedestal",false)),
   m_maskNoisyChannels(cfg.getUntrackedParameter<bool>("MaskNoisyChannels",false)),
   m_pedestalHigh_filename(cfg.getUntrackedParameter<std::string>("HighGainPedestalFileName",std::string("pedestalHG.txt"))),
@@ -18,7 +18,7 @@ HGCalTBRawHitProducer::HGCalTBRawHitProducer(const edm::ParameterSet& cfg) :
 {
   m_HGCalTBSkiroc2CMSCollection = consumes<HGCalTBSkiroc2CMSCollection>(cfg.getParameter<edm::InputTag>("InputCollection"));
   produces <HGCalTBRawHitCollection>(m_outputCollectionName);
-  produces <HGCalTBGlobalTimestamps>(m_globalTimestampCollectionName);
+  //produces <HGCalTBGlobalTimestamps>(m_globalTimestampCollectionName);
   std::cout << cfg.dump() << std::endl;
 }
 
@@ -140,13 +140,13 @@ void HGCalTBRawHitProducer::produce(edm::Event& event, const edm::EventSetup& iS
     for( size_t ichan=0; ichan<HGCAL_TB_GEOMETRY::N_CHANNELS_PER_SKIROC; ichan++ ){
       int iboard=iski/HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA;
       int iskiroc=iski%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA;
-      int skiId=HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA*iboard+(HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA-iskiroc)%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA+1;
+      /////int skiId=HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA*iboard+(HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA-iskiroc)%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA+1;
       bool isNoisy = false;
-      HGCalTBElectronicsId eid(skiId,ichan);
-      if( !essource_.emap_.existsEId(eid.rawId()) || std::find(m_noisyChannels.begin(),m_noisyChannels.end(),eid.rawId())!=m_noisyChannels.end() ) {
-	     isNoisy = true;
-       if (m_maskNoisyChannels) continue;
-      }
+      /////HGCalTBElectronicsId eid(skiId,ichan);
+      ////if( !essource_.emap_.existsEId(eid.rawId()) || std::find(m_noisyChannels.begin(),m_noisyChannels.end(),eid.rawId())!=m_noisyChannels.end() ) {
+      ////     isNoisy = true;
+      //// if (m_maskNoisyChannels) continue;
+      ////}
       unsigned int rawid=skiroc.detid(ichan).rawId();
       std::vector<float> adchigh(NUMBER_OF_SCA,0);
       std::vector<float> adclow(NUMBER_OF_SCA,0);
@@ -177,7 +177,7 @@ void HGCalTBRawHitProducer::produce(edm::Event& event, const edm::EventSetup& iS
     }
   }
   event.put(std::move(hits), m_outputCollectionName);
-  event.put(std::move(globalTimestamps), m_globalTimestampCollectionName);
+  //event.put(std::move(globalTimestamps), m_globalTimestampCollectionName);
 }
 
 DEFINE_FWK_MODULE(HGCalTBRawHitProducer);

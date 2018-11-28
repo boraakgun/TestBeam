@@ -6,19 +6,19 @@ import os,sys
 options = VarParsing.VarParsing('standard') # avoid the options: maxEvents, files, secondaryFiles, output, secondaryOutput because they are already defined in 'standard'
 #Change the data folder appropriately to where you wish to access the files from:
 options.register('dataFolder',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/rawhits/v1',
+                 '/eos/cms/store/user/bora/HGCAL/BeamTestAnalysis_2018/RawHit/disconnected_ch_study',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing ski2cms collection input')
 
 options.register('pedestalFolder',
-                 '/eos/cms/store/group/dpg_hgcal/tb_hgcal/2018/cern_h2_october/offline_analysis/pedestals/v1',
+                 'HGCAL/pedestals',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'folder containing pedestal files')
 
 options.register('runNumber',
-                 808,
+                 722,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  'Input run to process')
@@ -52,10 +52,10 @@ if not os.path.isdir(options.dataFolder):
 
 pedestalHighGain=options.pedestalFolder+"/pedestalsHG_"+str(options.runNumber)+".txt"
 pedestalLowGain=options.pedestalFolder+"/pedestalsLG_"+str(options.runNumber)+".txt"
-noisyChannels="noise.txt"
+noisyChannels=options.pedestalFolder+"noisyChannels_"+str(options.runNumber)+".txt"
 
 ################################
-process = cms.Process("rawhitAnalysis")
+process = cms.Process("correlationAnalysis")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
 )
@@ -63,7 +63,7 @@ process.maxEvents = cms.untracked.PSet(
 ####################################
 
 process.source = cms.Source("PoolSource",
-                            fileNames=cms.untracked.vstring("file:%s/RAWHITS_%d.root"%(options.dataFolder,options.runNumber))
+                            fileNames=cms.untracked.vstring("file:%s/run000%d.root"%(options.dataFolder,options.runNumber))
 )
 
 filename = options.outputFolder+"/HexaOutput_"+str(options.runNumber)+".root"
@@ -75,35 +75,14 @@ process.output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('drop *')
                                   )
 
-process.pedestalplotter = cms.EDAnalyzer("PedestalPlotter",
-                                         SensorSize=cms.untracked.int32(128),
-                                         WritePedestalFile=cms.untracked.bool(False),
-                                         InputCollection=cms.InputTag("source","skiroc2cmsdata"),
-                                         ElectronicMap=cms.untracked.string(options.electronicMap),
-                                         HighGainPedestalFileName=cms.untracked.string(pedestalHighGain),
-                                         LowGainPedestalFileName=cms.untracked.string(pedestalLowGain),
-                                         WriteNoisyChannelsFile=cms.untracked.bool(False),
-                                         NoisyChannelsFileName=cms.untracked.string(noisyChannels),
-                                         WriteTreeOutput=cms.untracked.bool(True)
-)
-
-process.rawhitplotter = cms.EDAnalyzer("RawHitPlotter",
-                                       InputCollection=cms.InputTag("rawhitproducer","HGCALTBRAWHITS"),
-                                       ElectronicMap=cms.untracked.string(options.electronicMap),
-                                       DetectorLayout=cms.untracked.string(options.hgcalLayout),
-                                       SensorSize=cms.untracked.int32(128),
-                                       EventPlotter=cms.untracked.bool(False),
-                                       SubtractCommonMode=cms.untracked.bool(True)
-)
-
 process.correlationplotter = cms.EDAnalyzer("CorrelationPlotter",
-                                         InputCollection=cms.InputTag("source","skiroc2cmsdata"),
+                                         InputCollection=cms.InputTag("rawhitproducer","HGCALTBRAWHITS"),
                                          ElectronicMap=cms.untracked.string(options.electronicMap),
                                          HighGainPedestalFileName=cms.untracked.string(pedestalHighGain),
                                          LowGainPedestalFileName=cms.untracked.string(pedestalLowGain),
 )
 
-process.p = cms.Path( process.rawhitplotter )
+process.p = cms.Path( process.correlationplotter )
 
 process.end = cms.EndPath(process.output)
 

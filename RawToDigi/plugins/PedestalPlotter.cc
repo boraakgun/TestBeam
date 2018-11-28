@@ -130,11 +130,11 @@ void PedestalPlotter::analyze(const edm::Event& event, const edm::EventSetup& se
     for( size_t ichan=0; ichan<HGCAL_TB_GEOMETRY::N_CHANNELS_PER_SKIROC; ichan++ ){
       HGCalTBDetId detid=skiroc.detid( ichan );
       HGCalTBElectronicsId eid( essource_.emap_.detId2eid(detid.rawId()) );
-      if( essource_.emap_.existsEId(eid) ){
-	std::pair<int,HGCalTBDetId> p( iboard*1000+(iski%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA)*100+ichan,skiroc.detid(ichan) );
-	setOfConnectedDetId.insert(p);
-      }
-      else continue;
+      //////if( essource_.emap_.existsEId(eid) ){
+      std::pair<int,HGCalTBDetId> p( iboard*1000+(iski%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA)*100+ichan,skiroc.detid(ichan) );
+      setOfConnectedDetId.insert(p);
+      /////}
+      /////else continue;
       for( size_t it=0; it<NUMBER_OF_SCA; it++ ){
 	if( rollpositions[it]<m_NTSForPedestalComputation ){ //consider only a certain number of time samples for pedestal subtraction
 	  uint32_t key=iboard*100000+(iski%HGCAL_TB_GEOMETRY::N_SKIROC_PER_HEXA)*10000+ichan*100+it;
@@ -287,7 +287,7 @@ void PedestalPlotter::endJob()
     pedestalTree->Branch("median_high", &median_high);
     pedestalTree->Branch("RMS_high", &RMS_high);
     pedestalTree->Branch("median_low", &median_low);
-    pedestalTree->Branch("RMS_low", &RMS_low);
+    pedestalTree->Branch("RMS_low", &RMS_low);   
   }
 
   std::fstream noisyChannels;
@@ -386,6 +386,7 @@ void PedestalPlotter::endJob()
     }
     noisyChannels.close();
   }
+  
 }
 
 void PedestalPlotter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
